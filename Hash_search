@@ -1,0 +1,157 @@
+#define TOMB 8888
+#define SPACE 9999
+#define N 14
+#define SIZE 17
+#define D 17
+#include <stdio.h>
+#include <malloc.h>
+
+typedef struct {
+	int *array;
+	int count;
+	int sizeindex;
+}HashTable; 
+int a[N]={32,64,27,41,57,31,13,23,53,66,01,68,54,44}; //int a[N]={49,30,10,41,57,14,47,23,53,66,14,69,20,41}; 
+typedef int *array;
+
+int Hash(int x){
+	return(x%D);
+}
+
+int CreateHash(HashTable &H){
+	int i=0,j=0,c=0;
+	
+	H.array=(array)malloc(SIZE*sizeof(int));
+	for(i=0;i<SIZE;i++) H.array[i]=SPACE;	
+	for(i=0;i<N;i++){
+		c=Hash(a[i]);
+	    while(H.array[c]!=SPACE) {
+	    
+	       if(c<SIZE-1) c++;
+	       else (c=(c+1)%D);	
+	}
+	H.array[c]=a[i];}
+	H.count=N;
+	H.sizeindex=SIZE;
+	return 1;
+}
+int RecreateHashTable(HashTable &H){	
+    int i=0,j=0,c=0;
+	H.array=(array)malloc((++H.sizeindex)*sizeof(int));
+	H.count++;
+	//printf("%d\n",H.count);
+	for(i=0;i<H.sizeindex;i++) H.array[i]=SPACE;	
+	for(i=0;i<H.count;i++){
+		c=Hash(a[i]);
+	    while(H.array[c]!=SPACE) {
+	    
+	       if(c<H.sizeindex-1) c++;
+	       else (c=(c+1)%H.sizeindex);	
+	}
+	H.array[c]=a[i];}
+	return 1;
+}
+int SearchHash(HashTable H,int K,int &p,int &c){
+	p=Hash(K);c=0;
+	while(H.array[p]!=K)
+	{c++;
+	if(H.array[p]==SPACE) return 0;
+	if(p<H.sizeindex-1) p++;
+	else p=(p+1)%D;}
+	c++; 
+	return 1;
+}
+int SearchHash2(HashTable H,int K,int &p,int &c){
+	p=Hash(K);c=0;
+	while(H.array[p]!=K)
+	{c++;
+	if(H.array[p]==SPACE||H.array[p]==TOMB) return 0;
+	if(p<H.sizeindex-1) p++;
+	else p=(p+1)%D;}
+	c++; 
+	return 1;
+}
+void print(HashTable H){
+	int i;
+	for (i=0;i<H.sizeindex;i++){
+		printf("%d ",H.array[i]);
+	}
+}
+
+float ASLCaculate(HashTable H){
+	int i,j,k,c,p,sum=0;
+	float s;
+	for(i=0;i<H.count;i++)
+	   {if(SearchHash(H,a[i],p,c)) {s+=c;sum++
+	   ;}
+	   //printf("%d ",c);
+	  
+	   }
+	return (s/sum);
+}
+
+int InsertHash(HashTable &H,int e){
+	int p,c;
+  
+    if(SearchHash(H,e,p,c)) 
+	{printf("该元素已经在哈希表中了！");
+    return(0);}
+    else if(c<H.sizeindex/2){
+    	SearchHash2(H,e,p,c);
+    	H.array[p]=e;  a[H.count]=e;
+		H.count++;
+		
+		return 1;
+	}
+	else {printf("%d %d",c,H.sizeindex/2);
+	printf("冲突过大重建哈希表！"); 
+	a[H.count]=e;
+	RecreateHashTable(H); 
+	return(0);
+	}
+}
+
+int DeleteHash(HashTable &H,int e){
+	int p,c; 
+	if(!(SearchHash(H,e,p,c))) {
+	printf("不存在该关键字！");
+	return(0);
+	}
+	H.array[p]=TOMB;
+	//H.count--;
+}    
+int main(){
+	int K,p=0,c=0,a,s,e;
+	HashTable H;
+//	printf("--");
+ep: printf("1：创建哈希表\n2：打印哈希表\n3：查找关键字\n4：计算ASL\n5：插入操作\n6：删除操作\n"); 
+    scanf("%d",&a);
+	switch(a){
+	case 1:	CreateHash(H);break;
+	case 2:print(H);break;
+	case 3:printf("请输入你想查找的关键字\n");scanf("%d",&K);
+	       { if(SearchHash(H,K,p,c)) printf("查找成功！在%d号下标，查找次数为%d\n",p,c);
+              else printf("查找失败！查找次数为%d\n",c);break;
+	         }
+	case 4:printf("ASL=%0.3f\n",ASLCaculate(H));break;
+	case 5:{printf("输入你要插入的数据\n");
+	scanf("%d",&e);
+	InsertHash(H,e);
+		break;
+	}
+	case 6:{printf("输入你要删除的数据\n");
+	scanf("%d",&e);
+	DeleteHash(H,e); 
+		break;
+	}
+	default:break;
+	}
+	printf("\n"); 
+goto ep;
+
+    
+    
+    
+   
+    
+}
